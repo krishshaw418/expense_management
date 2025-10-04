@@ -33,7 +33,8 @@ model User {
   company Company @relation(fields: [companyId], references: [id])
   reciepts Reciept[]
   approvedReciepts Reciept[] @relation("RecieptApprovals")
-  approvalRule ApprovalRule?
+  approvalRuleId String?
+  approvalRule ApprovalRule? @relation("ApprovalRuleUsers", fields: [approvalRuleId], references: [id])
   approvalRulesAsApprover ApprovalRule[] @relation("ApprovalRuleApprovers")
   approvals Approval[]
 }
@@ -63,10 +64,10 @@ model Reciept {
 
 model ApprovalRule {
   id String @id @default(uuid())
-  userId String @unique
-  user User @relation(fields: [userId], references: [id])
-  comanyId String
-  company Company @relation(fields: [comanyId], references: [id])
+  name String
+  users User[] @relation("ApprovalRuleUsers")
+  companyId String
+  company Company @relation(fields: [companyId], references: [id])
   isManagerApprover Boolean @default(false)
   approvers User[] @relation("ApprovalRuleApprovers")
   approvals Approval[]
