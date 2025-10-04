@@ -24,7 +24,7 @@ model User {
   id       String  @id @default(uuid())
   email    String  @unique
   name     String?
-  password String
+  hashedPassword String
   role     Role  @default(Admin)
   managerId String?
   manager User? @relation("UserManager", fields: [managerId], references: [id])

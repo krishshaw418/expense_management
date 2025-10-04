@@ -8,12 +8,14 @@ const SignupForm = z.object({
     name: z.string(),
     email: z.string(),
     password: z.string(),
-    country: z.string()
+    company_name: z.string(),
+    company_country: z.string(),
+    company_address: z.string()
 })
 
 export async function POST(req: NextRequest){
     try {
-        const {name, email, password, country} = await SignupForm.parseAsync(await req.json());
+        const {name, email, password, company_name, company_country, company_address} = await SignupForm.parseAsync(await req.json());
 
         const isValid = await validateEmail(email);
         if(!isValid) {
@@ -28,8 +30,12 @@ export async function POST(req: NextRequest){
 
         if(ExistingUser) return NextResponse.json({message: "User already exist. Please login."}, {status: 409});
 
+        const company = await prisma.company.create({
+          data: {name: company_name, country: company_country, address: company_address}
+        })
+
         const user = await prisma.user.create({
-            data: {name, email, password: hashedPassword, country: country},
+            data: {name, email, hashedPassword: hashedPassword, companyId: company.id},
             select: {id: true, email: true, hashedPassword: true} 
         })
 
