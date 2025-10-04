@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  User
+  Admin
+  Manager
+}
+
+enum Status {
+  Pending
+  Approved
+  Rejected
+}
+
+model User {
+  id       String  @id @default(uuid())
+  email    String  @unique
+  name     String?
+  password String
+  role     Role  @default(Admin)
+  managerId String?
+  manager User? @relation("UserManager", fields: [managerId], references: [id])
+  subordinates User[] @relation("UserManager")
+  companyId String
+  company Company @relation(fields: [companyId], references: [id])
+  reciepts Reciept[]
+  approvedReciepts Reciept[] @relation("RecieptApprovals")
+  approvalRule ApprovalRule?
+  approvalRulesAsApprover ApprovalRule[] @relation("ApprovalRuleApprovers")
+  approvals Approval[]
+}
+
+model Company {
+  id String @id @default(uuid())
+  name String
+  country String
+  address String
+  users User[]
+  approvalRules ApprovalRule[]
+}
+
+model Reciept {
+  id String @id @default(uuid())
+  description String
+  category String
+  amount Float
+  currency String
+  date DateTime
+  paidById String
+  paidBy User @relation(fields: [paidById], references: [id])
+  remarks String?
+  status Status @default(Pending)
+  approvedBy User[] @relation("RecieptApprovals")
+}
+
+model ApprovalRule {
+  id String @id @default(uuid())
+  userId String @unique
+  user User @relation(fields: [userId], references: [id])
+  comanyId String
+  company Company @relation(fields: [comanyId], references: [id])
+  isManagerApprover Boolean @default(false)
+  approvers User[] @relation("ApprovalRuleApprovers")
+  approvals Approval[]
+}
+
+model Approval {
+  id String @id @default(uuid())
+  approvalRuleId String
+  approvalRule ApprovalRule @relation(fields: [approvalRuleId], references: [id])
+  status Status @default(Pending)
+  timestamp DateTime @default(now())
+  approvedById String
+  approvedBy User @relation(fields: [approvedById], references: [id])
+}
