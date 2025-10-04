@@ -60,6 +60,8 @@ model Reciept {
   remarks String?
   status Status @default(Pending)
   approvedBy User[] @relation("RecieptApprovals")
+  imageUrl String?
+  companyId String
 }
 
 model ApprovalRule {
