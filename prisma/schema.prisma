@@ -9,7 +9,7 @@ datasource db {
 }
 
 enum Role {
-  User
+  Employee
   Admin
   Manager
 }
